@@ -1,5 +1,5 @@
-const metricDao = require('../daos/metric_dao');
-const timeUtils = require('../utils/time_utils');
+const metricDao = require('../daos/metric.dao');
+const timeUtils = require('../utils/time.util');
 
 /**
  * Retrieve metrics for a specified site ID.
@@ -18,13 +18,16 @@ const getMetricsForSite = async (siteId, limit) => {
     metricDao.getRecent(siteId, 'whUsed', currentTimestamp, limit),
   ]);
 
-  return ([{
-    measurements: metrics[0],
-    name: 'Watt-Hours Generated',
-  }, {
-    measurements: metrics[1],
-    name: 'Watt-Hours Used',
-  }]);
+  return [
+    {
+      measurements: metrics[0],
+      name: 'Watt-Hours Generated',
+    },
+    {
+      measurements: metrics[1],
+      name: 'Watt-Hours Used',
+    },
+  ];
 };
 
 module.exports = {

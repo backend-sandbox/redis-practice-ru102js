@@ -1,7 +1,7 @@
 const router = require('express').Router();
 const { query } = require('express-validator');
-const apiErrorReporter = require('../utils/apierrorreporter');
-const controller = require('../controllers/capacity_controller');
+const apiErrorReporter = require('../utils/api-error-reporter.util');
+const controller = require('../controllers/capacity.controller');
 
 /**
  * Returns the actual limit to be used, depending on whether or
@@ -12,15 +12,12 @@ const controller = require('../controllers/capacity_controller');
  *  passed in, otherwise 10 as a default.
  * @private
  */
-const getLimit = n => (Number.isNaN(n) || undefined === n ? 10 : n);
+const getLimit = (n) => (Number.isNaN(n) || undefined === n ? 10 : n);
 
 // GET /capacity?limit=99
 router.get(
   '/capacity',
-  [
-    query('limit').optional().isInt({ min: 1 }).toInt(),
-    apiErrorReporter,
-  ],
+  [query('limit').optional().isInt({ min: 1 }).toInt(), apiErrorReporter],
   async (req, res, next) => {
     try {
       const capacityReport = await controller.getCapacityReport(getLimit(req.query.limit));

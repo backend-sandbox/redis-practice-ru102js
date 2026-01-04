@@ -1,7 +1,7 @@
 const router = require('express').Router();
 const { param, query } = require('express-validator');
-const apiErrorReporter = require('../utils/apierrorreporter');
-const controller = require('../controllers/sites_controller.js');
+const apiErrorReporter = require('../utils/api-error-reporter.util.js');
+const controller = require('../controllers/sites.controller.js');
 
 /**
  * Custom validate.js validator.  Validates a set of parameters to
@@ -13,9 +13,7 @@ const controller = require('../controllers/sites_controller.js');
  * @private
  */
 const geoParamsValidator = (value, { req }) => {
-  const {
-    lat, lng, radius, radiusUnit,
-  } = req.query;
+  const { lat, lng, radius, radiusUnit } = req.query;
 
   if (lat && lng && radius && radiusUnit) {
     return true;
@@ -39,21 +37,11 @@ router.get(
   ],
   async (req, res, next) => {
     try {
-      const {
-        lat, lng, radius, radiusUnit, onlyExcessCapacity,
-      } = req.query;
+      const { lat, lng, radius, radiusUnit, onlyExcessCapacity } = req.query;
 
-      const sites = (
-        lat
-          ? await controller.getSitesNearby(
-            lat,
-            lng,
-            radius,
-            radiusUnit,
-            onlyExcessCapacity,
-          )
-          : await controller.getSites()
-      );
+      const sites = lat
+        ? await controller.getSitesNearby(lat, lng, radius, radiusUnit, onlyExcessCapacity)
+        : await controller.getSites();
 
       return res.status(200).json(sites);
     } catch (err) {
@@ -63,20 +51,13 @@ router.get(
 );
 
 // GET /sites/999
-router.get(
-  '/sites/:siteId',
-  [
-    param('siteId').isInt().toInt(),
-    apiErrorReporter,
-  ],
-  async (req, res, next) => {
-    try {
-      const site = await controller.getSite(req.params.siteId);
-      return (site ? res.status(200).json(site) : res.sendStatus(404));
-    } catch (err) {
-      return next(err);
-    }
-  },
-);
+router.get('/sites/:siteId', [param('siteId').isInt().toInt(), apiErrorReporter], async (req, res, next) => {
+  try {
+    const site = await controller.getSite(req.params.siteId);
+    return site ? res.status(200).json(site) : res.sendStatus(404);
+  } catch (err) {
+    return next(err);
+  }
+});
 
 module.exports = router;

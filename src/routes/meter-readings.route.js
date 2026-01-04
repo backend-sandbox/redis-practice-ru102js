@@ -1,7 +1,7 @@
 const router = require('express').Router();
 const { body, param, query } = require('express-validator');
-const apiErrorReporter = require('../utils/apierrorreporter');
-const controller = require('../controllers/meterreadings_controller');
+const apiErrorReporter = require('../utils/api-error-reporter.util');
+const controller = require('../controllers/meter-readings.controller');
 
 /**
  * Get the numeric limit value, 100 if not specified, otherwise
@@ -16,7 +16,7 @@ const getLimit = (n) => {
     return 100;
   }
 
-  return (n > 1000 ? 1000 : n);
+  return n > 1000 ? 1000 : n;
 };
 
 // POST /meterreadings
@@ -45,10 +45,7 @@ router.post(
 // GET /meterreadings?n=99
 router.get(
   '/meterreadings',
-  [
-    query('n').optional().isInt({ min: 1 }).toInt(),
-    apiErrorReporter,
-  ],
+  [query('n').optional().isInt({ min: 1 }).toInt(), apiErrorReporter],
   async (req, res, next) => {
     try {
       const readings = await controller.getMeterReadings(getLimit(req.query.n));
@@ -62,17 +59,10 @@ router.get(
 // GET /meterreadings/123?n=99
 router.get(
   '/meterreadings/:siteId',
-  [
-    param('siteId').isInt().toInt(),
-    query('n').optional().isInt({ min: 1 }).toInt(),
-    apiErrorReporter,
-  ],
+  [param('siteId').isInt().toInt(), query('n').optional().isInt({ min: 1 }).toInt(), apiErrorReporter],
   async (req, res, next) => {
     try {
-      const readings = await controller.getMeterReadingsForSite(
-        req.params.siteId,
-        getLimit(req.query.n),
-      );
+      const readings = await controller.getMeterReadingsForSite(req.params.siteId, getLimit(req.query.n));
 
       return res.status(200).json(readings);
     } catch (err) {

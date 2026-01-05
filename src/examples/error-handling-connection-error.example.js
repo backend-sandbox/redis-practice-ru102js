@@ -16,7 +16,7 @@ const connectionErrorExample = async () => {
         }
 
         // Try again after a period of time...
-        return (options.attempt * 1000);
+        return options.attempt * 1000;
       },
     });
 

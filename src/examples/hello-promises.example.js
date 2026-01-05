@@ -16,7 +16,7 @@ const getAsync = promisify(client.get).bind(client);
 // Chain promises together to call Redis commands and
 // process the results.
 setAsync('hello', 'world')
-  .then(res => console.log(res)) // OK
+  .then((res) => console.log(res)) // OK
   .then(() => getAsync('hello'))
-  .then(res => console.log(res)) // world
+  .then((res) => console.log(res)) // world
   .then(() => client.quit());

@@ -1,22 +1,22 @@
 const redis = require('redis');
+const logger = require('../utils/logger.util');
 
-// Create a client and connect to Redis.
+// * 1) Create a client and connect to Redis
 const client = redis.createClient({
   host: 'localhost',
   port: 6379,
   // password: 'password',
 });
 
-// Run a Redis command, receive response in callback.
-client.set('hello', 'world', (err, reply) => {
-  console.log(reply); // OK
+// * 2) Set key 'hello' to value 'world'
+client.set('hello', 'world', async (_err, reply) => {
+  logger.info(reply); // expected output: OK
 
-  // Run a second Redis command now we know that the
-  // first one completed.  Again, response in callback.
-  client.get('hello', (getErr, getReply) => {
-    console.log(getReply); // world
+  // * 3) Get value of key 'hello'
+  await client.get('hello', async (_getErr, getReply) => {
+    logger.info(getReply); // expected output: world
 
-    // Quit client and free up resources.
-    client.quit();
+    // * 4) Close Redis connection and free up resources
+    await client.quit();
   });
 });

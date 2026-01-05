@@ -1,21 +1,24 @@
 const winston = require('winston');
 const config = require('better-config');
 
-// Create a logger based on the log level in config.json
+const customFormat = winston.format.printf(({ level, message, timestamp }) => {
+  return `\n${timestamp} [${level}]: ${message}`;
+});
+
 const logger = winston.createLogger({
   level: config.get('application.logLevel'),
   transports: [
     new winston.transports.Console({
       format: winston.format.combine(
+        winston.format.timestamp({ format: 'YYYY-MM-DD HH:mm:ss' }),
         winston.format.colorize(),
-        winston.format.simple(),
+        customFormat,
       ),
     }),
   ],
 });
 
 logger.stream = {
-  // Write the text in 'message' to the log.
   write: (message) => {
     // Removes double newline issue with piping morgan server request
     // log through winston logger.

@@ -3,12 +3,12 @@ const config = require('better-config');
 config.set('../../config.json');
 
 const path = require('path');
-const redis = require('../daos/impl/redis/redis_client');
+const redis = require('../daos/impl/redis/redis-client');
 
 const client = redis.getClient();
-const sitesDao = require('../daos/impl/redis/site_dao_redis_impl');
-const sitesDaoWithGeo = require('../daos/impl/redis/site_geo_dao_redis_impl');
-const dataGenerator = require('./sample_data_generator');
+const sitesDao = require('../daos/impl/redis/site.dao.redis-implementation');
+const sitesDaoWithGeo = require('../daos/impl/redis/site-geo.dao.redis-implementation');
+const dataGenerator = require('./sample-data-generator.util');
 
 const dataDaysToGenerate = 1;
 

@@ -1,4 +1,4 @@
-const logger = require('./logger');
+const logger = require('./logger.util');
 
 /**
  * Displays a RediSolar banner as an into level log message.

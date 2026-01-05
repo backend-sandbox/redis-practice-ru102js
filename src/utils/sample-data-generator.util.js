@@ -1,6 +1,6 @@
 const moment = require('moment');
 
-const meterReadingsController = require('../controllers/meterreadings_controller');
+const meterReadingsController = require('../controllers/meter-readings.controller');
 
 // Max value we allow temperatures to reach when generating sample data.
 const maxTempC = 30;
@@ -14,7 +14,7 @@ const maxTempC = 30;
  *  achieve in one minute.
  * @private
  */
-const getMaxMinuteWHGenerated = capacity => capacity * 1000 / 24 / 60;
+const getMaxMinuteWHGenerated = (capacity) => (capacity * 1000) / 24 / 60;
 
 /**
  * Get the initial watt hours used figure for the first minute,
@@ -24,9 +24,7 @@ const getMaxMinuteWHGenerated = capacity => capacity * 1000 / 24 / 60;
  * @returns {number} - the initial minute watt hour used figure to use.
  * @private
  */
-const getInitialMinuteWHUsed = maxCapacity => (
-  Math.random() > 0.5 ? maxCapacity + 0.1 : maxCapacity - 0.1
-);
+const getInitialMinuteWHUsed = (maxCapacity) => (Math.random() > 0.5 ? maxCapacity + 0.1 : maxCapacity - 0.1);
 
 /**
  * Gets the next value in a series of values.
@@ -57,7 +55,7 @@ const getNextValueInSeries = (current, max) => {
  * @returns {number} - the next value.
  * @private
  */
-const getNextValue = max => getNextValueInSeries(max, max);
+const getNextValue = (max) => getNextValueInSeries(max, max);
 
 /**
  * Generates historical sample data for each site in the 'sites' array.

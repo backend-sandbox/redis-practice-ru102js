@@ -8,12 +8,13 @@
   },
   "private": true,
   "scripts": {
-    "dev": "./node_modules/nodemon/bin/nodemon.js",
+    "format": "prettier --write \"src/**/*.js\" \"tests/**/*.js\" \"*.json\"",
     "load": "node src/utils/data_loader.js --",
     "lint": "./node_modules/eslint/bin/eslint.js src tests",
     "start": "node ./src/app.js",
+    "start:dev": "./node_modules/nodemon/bin/nodemon.js",
     "test": "jest --no-colors",
-    "testdev": "jest --watch"
+    "test:dev": "jest --watch"
   },
   "author": "Redis",
   "engines": {
@@ -39,6 +40,7 @@
     "@babel/eslint-parser": "^7.15.8",
     "eslint": "^8.0.0",
     "jest": "^27.2.5",
-    "nodemon": "^2.0.13"
+    "nodemon": "^2.0.13",
+    "prettier": "^3.7.4"
   }
 }

@@ -1,4 +1,4 @@
-const redis = require('../redis_client');
+const redis = require('../redis-client');
 
 let sha;
 

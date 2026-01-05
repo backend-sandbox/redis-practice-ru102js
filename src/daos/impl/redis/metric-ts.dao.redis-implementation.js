@@ -1,4 +1,4 @@
-const redis = require('./redis_client');
+const redis = require('./redis-client');
 const keyGenerator = require('./redis_key_generator');
 
 const metricIntervalSeconds = 60;
@@ -54,7 +54,7 @@ const insert = async (meterReading) => {
  * @returns {Promise} - Promise resolving to an array of measurement objects.
  */
 const getRecent = async (siteId, metricUnit, timestamp, limit) => {
-  if (limit > (metricsPerDay * maxMetricRetentionDays)) {
+  if (limit > metricsPerDay * maxMetricRetentionDays) {
     const err = new Error(`Cannot request more than ${maxMetricRetentionDays} days of minute level data.`);
     err.name = 'TooManyMetricsError';
 
@@ -67,17 +67,13 @@ const getRecent = async (siteId, metricUnit, timestamp, limit) => {
   const toMillis = timestamp * 1000;
 
   // Start as far back as we need to go where limit represents 1 min.
-  const fromMillis = toMillis - (limit * 60) * 1000;
+  const fromMillis = toMillis - limit * 60 * 1000;
 
   // Get the samples from RedisTimeSeries.
   // We could also use client.send_commandAsync('ts.range')
   // rather than adding the RedisTimeSeries commands
   // to the redis module (see redis_client.js)
-  const samples = await client.ts_rangeAsync(
-    keyGenerator.getTSKey(siteId, metricUnit),
-    fromMillis,
-    toMillis,
-  );
+  const samples = await client.ts_rangeAsync(keyGenerator.getTSKey(siteId, metricUnit), fromMillis, toMillis);
 
   // Truncate array if needed.
   if (samples.length > limit) {

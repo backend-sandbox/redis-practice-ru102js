@@ -1,5 +1,5 @@
-const redis = require('./redis_client');
-const keyGenerator = require('./redis_key_generator');
+const redis = require('./redis-client');
+const keyGenerator = require('./redis-key-generator');
 
 /**
  * Transform an array of siteId, capacity tuples to an array
@@ -30,11 +30,7 @@ const update = async (meterReading) => {
   const client = redis.getClient();
   const currentCapacity = meterReading.whGenerated - meterReading.whUsed;
 
-  await client.zaddAsync(
-    keyGenerator.getCapacityRankingKey(),
-    currentCapacity,
-    meterReading.siteId,
-  );
+  await client.zaddAsync(keyGenerator.getCapacityRankingKey(), currentCapacity, meterReading.siteId);
 };
 
 /**
@@ -67,10 +63,7 @@ const getRank = async (siteId) => {
   // START Challenge #4
   const client = redis.getClient();
 
-  const result = await client.zrankAsync(
-    keyGenerator.getCapacityRankingKey(),
-    `${siteId}`,
-  );
+  const result = await client.zrankAsync(keyGenerator.getCapacityRankingKey(), `${siteId}`);
 
   return result;
   // END Challenge #4

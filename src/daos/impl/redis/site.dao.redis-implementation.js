@@ -1,5 +1,5 @@
-const redis = require('./redis_client');
-const keyGenerator = require('./redis_key_generator');
+const redis = require('./redis-client');
+const keyGenerator = require('./redis-key-generator');
 
 /**
  * Takes a flat key/value pairs object representing a Redis hash, and
@@ -85,7 +85,7 @@ const findById = async (id) => {
 
   const siteHash = await client.hgetallAsync(siteKey);
 
-  return (siteHash === null ? siteHash : remap(siteHash));
+  return siteHash === null ? siteHash : remap(siteHash);
 };
 
 /* eslint-disable arrow-body-style */

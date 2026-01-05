@@ -9,7 +9,7 @@ const config = require('better-config');
  */
 const loadDao = (daoName) => {
   const currentDatabase = config.get('application.dataStore');
-  return require(`./impl/${currentDatabase}/${daoName}_dao_${currentDatabase}_impl`);
+  return require(`./impl/${currentDatabase}/${daoName}.dao.${currentDatabase}-implementation`);
 };
 /* eslint-enable */
 

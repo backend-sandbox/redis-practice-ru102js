@@ -1,7 +1,7 @@
-const redis = require('./redis_client');
+const redis = require('./redis-client');
 /* eslint-disable no-unused-vars */
-const keyGenerator = require('./redis_key_generator');
-const timeUtils = require('../../../utils/time_utils');
+const keyGenerator = require('./redis-key-generator');
+const timeUtils = require('../../../utils/time.util');
 /* eslint-enable */
 
 /* eslint-disable no-unused-vars */

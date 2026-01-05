@@ -1,7 +1,7 @@
-const redis = require('./redis_client');
-const compareAndUpdateScript = require('./scripts/compare_and_update_script');
-const keyGenerator = require('./redis_key_generator');
-const timeUtils = require('../../../utils/time_utils');
+const redis = require('./redis-client.js');
+const compareAndUpdateScript = require('./scripts/compare-and-update.script.js');
+const keyGenerator = require('./redis-key-generator.js');
+const timeUtils = require('../../../utils/time.util.js');
 
 const weekSeconds = 60 * 60 * 24 * 7;
 
@@ -36,11 +36,9 @@ const remap = (siteStatsHash) => {
 const findById = async (siteId, timestamp) => {
   const client = redis.getClient();
 
-  const response = await client.hgetallAsync(
-    keyGenerator.getSiteStatsKey(siteId, timestamp),
-  );
+  const response = await client.hgetallAsync(keyGenerator.getSiteStatsKey(siteId, timestamp));
 
-  return (response ? remap(response) : response);
+  return response ? remap(response) : response;
 };
 
 /* eslint-disable no-unused-vars */
@@ -73,16 +71,9 @@ const updateOptimized = async (meterReading) => {
  */
 const updateBasic = async (meterReading) => {
   const client = redis.getClient();
-  const key = keyGenerator.getSiteStatsKey(
-    meterReading.siteId,
-    meterReading.dateTime,
-  );
+  const key = keyGenerator.getSiteStatsKey(meterReading.siteId, meterReading.dateTime);
 
-  await client.hsetAsync(
-    key,
-    'lastReportingTime',
-    timeUtils.getCurrentTimestamp(),
-  );
+  await client.hsetAsync(key, 'lastReportingTime', timeUtils.getCurrentTimestamp());
   await client.hincrbyAsync(key, 'meterReadingCount', 1);
   await client.expireAsync(key, weekSeconds);
 

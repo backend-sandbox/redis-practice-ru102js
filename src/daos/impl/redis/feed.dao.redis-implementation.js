@@ -1,5 +1,5 @@
-const redis = require('./redis_client');
-const keyGenerator = require('./redis_key_generator');
+const redis = require('./redis-client');
+const keyGenerator = require('./redis-key-generator');
 
 /* eslint-disable no-unused-vars */
 const globalMaxFeedLength = 10000;
@@ -149,10 +149,7 @@ const getRecent = async (key, limit) => {
  * @param {number} limit - the maximum number of readings to return.
  * @returns {Promise} - Promise that resolves to an array of meter reading objects.
  */
-const getRecentGlobal = async limit => getRecent(
-  keyGenerator.getGlobalFeedKey(),
-  limit,
-);
+const getRecentGlobal = async (limit) => getRecent(keyGenerator.getGlobalFeedKey(), limit);
 
 /**
  * Get recent meter readings for a specific solar sites.
@@ -160,10 +157,7 @@ const getRecentGlobal = async limit => getRecent(
  * @param {*} limit - the maximum number of readings to return.
  * @returns {Promise} - Promise that resolves to an array of meter reading objects.
  */
-const getRecentForSite = async (siteId, limit) => getRecent(
-  keyGenerator.getFeedKey(siteId),
-  limit,
-);
+const getRecentForSite = async (siteId, limit) => getRecent(keyGenerator.getFeedKey(siteId), limit);
 
 module.exports = {
   insert,

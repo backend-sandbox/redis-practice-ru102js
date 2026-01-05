@@ -1,5 +1,5 @@
-const redis = require('./redis_client');
-const keyGenerator = require('./redis_key_generator');
+const redis = require('./redis-client');
+const keyGenerator = require('./redis-key-generator');
 
 // Minimum amount of capacity that a site should have to be
 // considered as having 'excess capacity'.
@@ -78,12 +78,7 @@ const insert = async (site) => {
     throw new Error('Coordinate required for site geo insert!');
   }
 
-  await client.geoaddAsync(
-    keyGenerator.getSiteGeoKey(),
-    site.coordinate.lng,
-    site.coordinate.lat,
-    site.id,
-  );
+  await client.geoaddAsync(keyGenerator.getSiteGeoKey(), site.coordinate.lng, site.coordinate.lat, site.id);
 
   return siteHashKey;
 };
@@ -100,7 +95,7 @@ const findById = async (id) => {
 
   const siteHash = await client.hgetallAsync(siteKey);
 
-  return (siteHash === null ? siteHash : remap(siteHash));
+  return siteHash === null ? siteHash : remap(siteHash);
 };
 
 /**
@@ -143,13 +138,7 @@ const findAll = async () => {
 const findByGeo = async (lat, lng, radius, radiusUnit) => {
   const client = redis.getClient();
 
-  const siteIds = await client.georadiusAsync(
-    keyGenerator.getSiteGeoKey(),
-    lng,
-    lat,
-    radius,
-    radiusUnit.toLowerCase(),
-  );
+  const siteIds = await client.georadiusAsync(keyGenerator.getSiteGeoKey(), lng, lat, radius, radiusUnit.toLowerCase());
 
   const sites = [];
 
@@ -218,11 +207,7 @@ const findByGeoWithExcessCapacity = async (lat, lng, radius, radiusUnit) => {
 
   // Get sites IDs with enough capacity from the temporary
   // sorted set and store them in siteIds.
-  const siteIds = await client.zrangebyscoreAsync(
-    sitesInRadiusCapacitySortedSetKey,
-    capacityThreshold,
-    '+inf',
-  );
+  const siteIds = await client.zrangebyscoreAsync(sitesInRadiusCapacitySortedSetKey, capacityThreshold, '+inf');
 
   // Populate array with site details, use pipeline for efficiency.
   const siteHashPipeline = client.batch();

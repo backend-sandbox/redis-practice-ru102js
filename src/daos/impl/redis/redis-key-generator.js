@@ -1,6 +1,6 @@
 const config = require('better-config');
 const shortId = require('shortid');
-const timeUtils = require('../../../utils/time_utils');
+const timeUtils = require('../../../utils/time.util');
 
 // Prefix that all keys will start with, taken from config.json
 let prefix = config.get('dataStores.redis.keyPrefix');
@@ -15,7 +15,7 @@ let prefix = config.get('dataStores.redis.keyPrefix');
  *  the value of 'key'
  * @private
  */
-const getKey = key => `${prefix}:${key}`;
+const getKey = (key) => `${prefix}:${key}`;
 
 /**
  * Generates a temporary unique key name using a the short string
@@ -37,7 +37,7 @@ const getTemporaryKey = () => getKey(`tmp:${shortId.generate()}`);
  * @param {number} siteId - the numeric ID of a site.
  * @returns - the site information key for the provided site ID.
  */
-const getSiteHashKey = siteId => getKey(`sites:info:${siteId}`);
+const getSiteHashKey = (siteId) => getKey(`sites:info:${siteId}`);
 
 /**
  * Returns the Redis key name used for the set storing all site IDs.
@@ -131,9 +131,8 @@ const getTSKey = (siteId, unit) => getKey(`sites:ts:${siteId}:${unit}`);
  * @returns {string} - the Redis key used to store metrics for the specified metric
  *  on the specified day for the specified site ID.
  */
-const getDayMetricKey = (siteId, unit, timestamp) => getKey(
-  `metric:${unit}:${timeUtils.getDateString(timestamp)}:${siteId}`,
-);
+const getDayMetricKey = (siteId, unit, timestamp) =>
+  getKey(`metric:${unit}:${timeUtils.getDateString(timestamp)}:${siteId}`);
 
 /**
  * Returns the name of the Redis key used to store the global sites data feed.
@@ -156,7 +155,7 @@ const getGlobalFeedKey = () => getKey('sites:feed');
  * @returns {string} - the Redis key used to store the data feed for the
  *  site represented by 'siteId'.
  */
-const getFeedKey = siteId => getKey(`sites:feed:${siteId}`);
+const getFeedKey = (siteId) => getKey(`sites:feed:${siteId}`);
 
 /**
  * Set the global key prefix, overriding the one set in config.json.

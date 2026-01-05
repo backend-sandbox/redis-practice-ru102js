@@ -23,7 +23,7 @@ if (config.get('dataStores.redis.password')) {
 const client = redis.createClient(clientConfig);
 
 // This is a catch all basic error handler.
-client.on('error', error => console.log(error));
+client.on('error', (error) => console.log(error));
 
 module.exports = {
   /**

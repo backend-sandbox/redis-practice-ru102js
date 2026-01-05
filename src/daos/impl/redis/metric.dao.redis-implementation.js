@@ -1,7 +1,7 @@
 const roundTo = require('round-to');
-const redis = require('./redis_client');
-const keyGenerator = require('./redis_key_generator');
-const timeUtils = require('../../../utils/time_utils');
+const redis = require('./redis-client');
+const keyGenerator = require('./redis-key-generator');
+const timeUtils = require('../../../utils/time.util');
 
 const metricIntervalSeconds = 60;
 const metricsPerDay = metricIntervalSeconds * 24;
@@ -125,7 +125,7 @@ const insert = async (meterReading) => {
  * @returns {Promise} - Promise resolving to an array of measurement objects.
  */
 const getRecent = async (siteId, metricUnit, timestamp, limit) => {
-  if (limit > (metricsPerDay * maxMetricRetentionDays)) {
+  if (limit > metricsPerDay * maxMetricRetentionDays) {
     const err = new Error(`Cannot request more than ${maxMetricRetentionDays} days of minute level data.`);
     err.name = 'TooManyMetricsError';
 
@@ -139,12 +139,7 @@ const getRecent = async (siteId, metricUnit, timestamp, limit) => {
 
   do {
     /* eslint-disable no-await-in-loop */
-    const dateMeasurements = await getMeasurementsForDate(
-      siteId,
-      metricUnit,
-      currentTimestamp,
-      count,
-    );
+    const dateMeasurements = await getMeasurementsForDate(siteId, metricUnit, currentTimestamp, count);
     /* eslint-enable */
 
     measurements.unshift(...dateMeasurements);

@@ -53,27 +53,39 @@ const runSlidingWindowTests = async (name, limiterOpts, howMany) => {
 
 // Challenge 7. Remove '.skip' to enable test.
 test.skip(`${testSuiteName}: hit (sliding window limit not exceeded)`, async () => {
-  const results = await runSlidingWindowTests('testresource', {
-    interval: 10000,
-    maxHits: 5,
-  }, 5);
+  const results = await runSlidingWindowTests(
+    'testresource',
+    {
+      interval: 10000,
+      maxHits: 5,
+    },
+    5,
+  );
 
   expect(results).toStrictEqual([4, 3, 2, 1, 0]);
 });
 
 // Challenge 7. Remove '.skip' to enable test.
 test.skip(`${testSuiteName}: hit (sliding window limit exceeded)`, async () => {
-  let results = await runSlidingWindowTests('testresource2', {
-    interval: 10000,
-    maxHits: 5,
-  }, 6);
+  let results = await runSlidingWindowTests(
+    'testresource2',
+    {
+      interval: 10000,
+      maxHits: 5,
+    },
+    6,
+  );
 
   expect(results).toStrictEqual([4, 3, 2, 1, 0, -1]);
 
-  results = await runSlidingWindowTests('testresource3', {
-    interval: 10000,
-    maxHits: 5,
-  }, 8);
+  results = await runSlidingWindowTests(
+    'testresource3',
+    {
+      interval: 10000,
+      maxHits: 5,
+    },
+    8,
+  );
 
   expect(results).toStrictEqual([4, 3, 2, 1, 0, -1, -1, -1]);
 });

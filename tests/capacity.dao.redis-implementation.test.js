@@ -2,11 +2,11 @@ const config = require('better-config');
 
 config.set('../config.json');
 
-const redis = require('../src/daos/impl/redis/redis_client');
-const redisCapacityDAO = require('../src/daos/impl/redis/capacity_dao_redis_impl');
-const keyGenerator = require('../src/daos/impl/redis/redis_key_generator');
+const redis = require('../src/daos/impl/redis/redis-client');
+const redisCapacityDAO = require('../src/daos/impl/redis/capacity.dao.redis-implementation');
+const keyGenerator = require('../src/daos/impl/redis/redis-key-generator');
 
-const testSuiteName = 'capacity_dao_redis_impl';
+const testSuiteName = 'capacity.dao.redis-practice';
 
 const testKeyPrefix = `test:${testSuiteName}`;
 
@@ -43,10 +43,7 @@ test(`${testSuiteName}: update`, async () => {
 
   await redisCapacityDAO.update(testReading);
 
-  const score = await client.zscoreAsync(
-    keyGenerator.getCapacityRankingKey(),
-    testReading.siteId,
-  );
+  const score = await client.zscoreAsync(keyGenerator.getCapacityRankingKey(), testReading.siteId);
 
   // Remember score will come back as a string, so ensure it is
   // compared with a string to make the test succeed.
@@ -81,15 +78,7 @@ test(`${testSuiteName}: getReport`, async () => {
     },
   ];
 
-  await Promise.all(
-    entries.map(
-      site => client.zaddAsync(
-        keyGenerator.getCapacityRankingKey(),
-        site.score,
-        site.id,
-      ),
-    ),
-  );
+  await Promise.all(entries.map((site) => client.zaddAsync(keyGenerator.getCapacityRankingKey(), site.score, site.id)));
 
   const report = await redisCapacityDAO.getReport(2);
 
@@ -143,15 +132,7 @@ test.skip(`${testSuiteName}: getRank`, async () => {
     },
   ];
 
-  await Promise.all(
-    entries.map(
-      site => client.zaddAsync(
-        keyGenerator.getCapacityRankingKey(),
-        site.score,
-        site.id,
-      ),
-    ),
-  );
+  await Promise.all(entries.map((site) => client.zaddAsync(keyGenerator.getCapacityRankingKey(), site.score, site.id)));
 
   let result = await redisCapacityDAO.getRank(1);
   expect(result).toBe(4);

@@ -51,9 +51,7 @@ test(`${testSuiteName}: updateIfLowest example`, async () => {
   await updateIfLowestScript.load();
 
   // Execute script using helper function.
-  const result = await client.evalshaAsync(
-    updateIfLowestScript.updateIfLowest(key, value),
-  );
+  const result = await client.evalshaAsync(updateIfLowestScript.updateIfLowest(key, value));
 
   // Check result.
   expect(result).toBe(1);
@@ -67,9 +65,7 @@ test(`${testSuiteName}: update if lowest`, async () => {
 
   await updateIfLowestScript.load();
 
-  const result = await client.evalshaAsync(
-    updateIfLowestScript.updateIfLowest(testKey, 50),
-  );
+  const result = await client.evalshaAsync(updateIfLowestScript.updateIfLowest(testKey, 50));
 
   // Expect the response to be 1 / truthy (value was updated).
   expect(result).toBeTruthy();
@@ -85,9 +81,7 @@ test(`${testSuiteName}: update if lowest unchanged`, async () => {
   await client.setAsync(testKey, 100);
   await updateIfLowestScript.load();
 
-  const result = await client.evalshaAsync(
-    updateIfLowestScript.updateIfLowest(testKey, 200),
-  );
+  const result = await client.evalshaAsync(updateIfLowestScript.updateIfLowest(testKey, 200));
 
   expect(result).toBeFalsy();
 

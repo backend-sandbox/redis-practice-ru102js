@@ -71,7 +71,9 @@ test(`${testSuiteName}: getTSKey`, () => {
 
 test(`${testSuiteName}: getDayMetricKey`, () => {
   // 1562650200 = July 9th 2019 05:30:00 UTC
-  expect(keyGenerator.getDayMetricKey(999, 'testing', 1562650200)).toBe(`${expectedKeyPrefix}:metric:testing:2019-07-09:999`);
+  expect(keyGenerator.getDayMetricKey(999, 'testing', 1562650200)).toBe(
+    `${expectedKeyPrefix}:metric:testing:2019-07-09:999`,
+  );
 });
 
 test(`${testSuiteName}: getGlobalFeedKey`, () => {

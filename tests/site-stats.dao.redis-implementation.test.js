@@ -3,10 +3,10 @@ const config = require('better-config');
 config.set('../config.json');
 
 const redis = require('../src/daos/impl/redis/redis_client');
-const redisSiteStatsDAO = require('../src/daos/impl/redis/sitestats_dao_redis_impl');
-const keyGenerator = require('../src/daos/impl/redis/redis_key_generator');
+const redisSiteStatsDAO = require('../src/daos/impl/redis/site-stats.dao.redis-implementation');
+const keyGenerator = require('../src/daos/impl/redis/redis-key-generator');
 
-const testSuiteName = 'sitestats_dao_redis_impl';
+const testSuiteName = 'site-stats.dao.redis-implementation';
 
 const testKeyPrefix = `test:${testSuiteName}`;
 
@@ -124,7 +124,6 @@ test(`${testSuiteName}: update`, async () => {
   expect(lastReportingTime).toBeLessThanOrEqual(after);
 });
 
-
 test(`${testSuiteName}: findById`, async () => {
   // Create some data.
   const meterReading = {
@@ -155,12 +154,7 @@ test(`${testSuiteName}: findById`, async () => {
   expect(response.lastReportingTime).toBeLessThanOrEqual(after);
 
   // Check that an expiry was set.
-  const ttl = await client.ttlAsync(
-    keyGenerator.getSiteStatsKey(
-      meterReading.siteId,
-      meterReading.dateTime,
-    ),
-  );
+  const ttl = await client.ttlAsync(keyGenerator.getSiteStatsKey(meterReading.siteId, meterReading.dateTime));
 
   expect(ttl).toBeGreaterThan(0);
   expect(ttl).toBeLessThanOrEqual(60 * 60 * 24 * 7); // One week in seconds.

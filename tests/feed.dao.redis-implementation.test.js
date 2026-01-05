@@ -14,7 +14,7 @@ keyGenerator.setPrefix(testKeyPrefix);
 const client = redis.getClient();
 
 const generateMeterReading = (val, siteId) => ({
-  siteId: (siteId || 999),
+  siteId: siteId || 999,
   dateTime: new Date().getTime(),
   tempC: val,
   whUsed: val,
@@ -48,10 +48,7 @@ const insertAndReadBackFromStream = async (siteId) => {
   await redisFeedDAO.insert(testMeterReading2);
 
   // Test feed with and without limit.
-  let meterReadings = await (siteId
-    ? redisFeedDAO.getRecentForSite(siteId, 100)
-    : redisFeedDAO.getRecentGlobal(100)
-  );
+  let meterReadings = await (siteId ? redisFeedDAO.getRecentForSite(siteId, 100) : redisFeedDAO.getRecentGlobal(100));
 
   if (siteId) {
     // Site specific stream.
@@ -73,10 +70,7 @@ const insertAndReadBackFromStream = async (siteId) => {
     expect(meterReadings[1].whGenerated).toBe(testMeterReading1.whGenerated);
   }
 
-  meterReadings = await (siteId
-    ? redisFeedDAO.getRecentForSite(siteId, 1)
-    : redisFeedDAO.getRecentGlobal(1)
-  );
+  meterReadings = await (siteId ? redisFeedDAO.getRecentForSite(siteId, 1) : redisFeedDAO.getRecentGlobal(1));
 
   expect(meterReadings.length).toBe(1);
   expect(meterReadings[0].siteId).toBe(testMeterReading2.siteId);

@@ -115,11 +115,7 @@ test(`${testSuiteName}: Test Redis Hash`, async () => {
   };
 
   // Set the fields one at a time...
-  await Promise.all(
-    Object.keys(earthProps).map(
-      key => client.hsetAsync('earth', key, earthProps[key]),
-    ),
-  );
+  await Promise.all(Object.keys(earthProps).map((key) => client.hsetAsync('earth', key, earthProps[key])));
 
   // Get the hash back from Redis.  Note values returned as strings.
   let hash = await client.hgetallAsync('earth');

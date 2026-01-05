@@ -2,10 +2,10 @@ const config = require('better-config');
 
 config.set('../config.json');
 
-const redis = require('../src/daos/impl/redis/redis_client');
-const redisSiteDAO = require('../src/daos/impl/redis/site_geo_dao_redis_impl');
-const redisCapacityDAO = require('../src/daos/impl/redis/capacity_dao_redis_impl');
-const keyGenerator = require('../src/daos/impl/redis/redis_key_generator');
+const redis = require('../src/daos/impl/redis/redis-client');
+const redisSiteDAO = require('../src/daos/impl/redis/site-geo.dao.redis-implementation');
+const redisCapacityDAO = require('../src/daos/impl/redis/capacity.dao.redis-implementation');
+const keyGenerator = require('../src/daos/impl/redis/redis-key-generator');
 
 const testSuiteName = 'site_geo_dao_redis_impl';
 
@@ -114,43 +114,47 @@ test(`${testSuiteName}: findById with missing site`, async () => {
 });
 
 test(`${testSuiteName}: findAll with multiple sites`, async () => {
-  const sites = [{
-    id: 1,
-    capacity: 4.5,
-    panels: 3,
-    address: '123 Willow St.',
-    city: 'Oakland',
-    state: 'CA',
-    postalCode: '94577',
-    coordinate: {
-      lat: 37.739659,
-      lng: -122.255689,
+  const sites = [
+    {
+      id: 1,
+      capacity: 4.5,
+      panels: 3,
+      address: '123 Willow St.',
+      city: 'Oakland',
+      state: 'CA',
+      postalCode: '94577',
+      coordinate: {
+        lat: 37.739659,
+        lng: -122.255689,
+      },
     },
-  }, {
-    id: 2,
-    capacity: 3.0,
-    panels: 2,
-    address: '456 Maple St.',
-    city: 'Oakland',
-    state: 'CA',
-    postalCode: '94577',
-    coordinate: {
-      lat: 37.739559,
-      lng: -122.256689,
+    {
+      id: 2,
+      capacity: 3.0,
+      panels: 2,
+      address: '456 Maple St.',
+      city: 'Oakland',
+      state: 'CA',
+      postalCode: '94577',
+      coordinate: {
+        lat: 37.739559,
+        lng: -122.256689,
+      },
     },
-  }, {
-    id: 3,
-    capacity: 4.0,
-    panels: 3,
-    address: '789 Oak St.',
-    city: 'Oakland',
-    state: 'CA',
-    postalCode: '94577',
-    coordinate: {
-      lat: 37.739659,
-      lng: -122.255689,
+    {
+      id: 3,
+      capacity: 4.0,
+      panels: 3,
+      address: '789 Oak St.',
+      city: 'Oakland',
+      state: 'CA',
+      postalCode: '94577',
+      coordinate: {
+        lat: 37.739659,
+        lng: -122.255689,
+      },
     },
-  }];
+  ];
 
   /* eslint-disable no-await-in-loop */
 
@@ -213,11 +217,7 @@ test(`${testSuiteName}: findByGeo with results`, async () => {
     },
   };
 
-  await Promise.all([
-    redisSiteDAO.insert(site1),
-    redisSiteDAO.insert(site2),
-    redisSiteDAO.insert(site3),
-  ]);
+  await Promise.all([redisSiteDAO.insert(site1), redisSiteDAO.insert(site2), redisSiteDAO.insert(site3)]);
 
   // Find Oakland sites, expect 1.
   let response = await redisSiteDAO.findByGeo(37.804829, -122.272476, 10, 'km');
@@ -230,12 +230,12 @@ test(`${testSuiteName}: findByGeo with results`, async () => {
   expect(response[0].id).toBe(site1.id);
 
   // Find Union City sites, expect 1.
-  response = await redisSiteDAO.findByGeo(37.596323, -122.081630, 10, 'km');
+  response = await redisSiteDAO.findByGeo(37.596323, -122.08163, 10, 'km');
   expect(response.length).toBe(1);
   expect(response[0].id).toBe(site2.id);
 
   // Larger Radius should return all 3 sites.
-  response = await redisSiteDAO.findByGeo(37.596323, -122.081630, 60, 'km');
+  response = await redisSiteDAO.findByGeo(37.596323, -122.08163, 60, 'km');
   expect(response.length).toBe(3);
   expect(response[0].id).toBe(site2.id);
   expect(response[1].id).toBe(site3.id);
@@ -302,18 +302,10 @@ test.skip(`${testSuiteName}: findByGeoWithExcessCapacity`, async () => {
   };
 
   // Add sites.
-  await Promise.all([
-    redisSiteDAO.insert(site1),
-    redisSiteDAO.insert(site2),
-  ]);
+  await Promise.all([redisSiteDAO.insert(site1), redisSiteDAO.insert(site2)]);
 
   // Should find site1 and site2.
-  let response = await redisSiteDAO.findByGeo(
-    site1.coordinate.lat,
-    site1.coordinate.lng,
-    60,
-    'km',
-  );
+  let response = await redisSiteDAO.findByGeo(site1.coordinate.lat, site1.coordinate.lng, 60, 'km');
 
   expect(response.length).toBe(2);
   expect(response[0].id).toBe(site1.id);
@@ -339,12 +331,7 @@ test.skip(`${testSuiteName}: findByGeoWithExcessCapacity`, async () => {
   ]);
 
   // Perform a capacity search, should return only site2.
-  response = await redisSiteDAO.findByGeoWithExcessCapacity(
-    site1.coordinate.lat,
-    site1.coordinate.lng,
-    60,
-    'km',
-  );
+  response = await redisSiteDAO.findByGeoWithExcessCapacity(site1.coordinate.lat, site1.coordinate.lng, 60, 'km');
 
   expect(response.length).toBe(1);
   expect(response[0].id).toBe(site2.id);
@@ -371,12 +358,7 @@ test.skip(`${testSuiteName}: findByGeoWithExcessCapacity`, async () => {
 
   // Perform a capacity search, expect no results even though
   // both sites have some capacity.
-  response = await redisSiteDAO.findByGeoWithExcessCapacity(
-    site1.coordinate.lat,
-    site1.coordinate.lng,
-    60,
-    'km',
-  );
+  response = await redisSiteDAO.findByGeoWithExcessCapacity(site1.coordinate.lat, site1.coordinate.lng, 60, 'km');
 
   expect(response.length).toBe(0);
 });

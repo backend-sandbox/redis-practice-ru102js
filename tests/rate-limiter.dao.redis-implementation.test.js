@@ -44,19 +44,27 @@ const runRateLimiter = async (name, limiterOpts, howMany) => {
 };
 
 test(`${testSuiteName}: hit (fixed window limit not exceeded)`, async () => {
-  const results = await runRateLimiter('testresource', {
-    interval: 1,
-    maxHits: 5,
-  }, 5);
+  const results = await runRateLimiter(
+    'testresource',
+    {
+      interval: 1,
+      maxHits: 5,
+    },
+    5,
+  );
 
   expect(results).toStrictEqual([4, 3, 2, 1, 0]);
 });
 
 test(`${testSuiteName}: hit (fixed window limit exceeded)`, async () => {
-  const results = await runRateLimiter('testresource2', {
-    interval: 1,
-    maxHits: 5,
-  }, 7);
+  const results = await runRateLimiter(
+    'testresource2',
+    {
+      interval: 1,
+      maxHits: 5,
+    },
+    7,
+  );
 
   expect(results).toStrictEqual([4, 3, 2, 1, 0, -1, -1]);
 });

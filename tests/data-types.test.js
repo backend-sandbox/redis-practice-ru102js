@@ -33,7 +33,7 @@ test(`${testSuiteName}: Test Redis string`, async () => {
 
   const value = await client.getAsync(testKeyName);
 
-  expect(typeof (value)).toBe('string');
+  expect(typeof value).toBe('string');
   expect(value).toBe('hello');
 });
 
@@ -42,7 +42,7 @@ test(`${testSuiteName}: Test Redis list`, async () => {
 
   const value = await client.lrangeAsync(testKeyName, 0, 3);
 
-  expect(typeof (value)).toBe('object');
+  expect(typeof value).toBe('object');
   expect(Array.isArray(value)).toBe(true);
   expect(value).toEqual(['one', 'two', 'three']);
 });
@@ -52,7 +52,7 @@ test(`${testSuiteName}: Test Redis set`, async () => {
 
   const value = await client.smembersAsync(testKeyName);
 
-  expect(typeof (value)).toBe('object');
+  expect(typeof value).toBe('object');
   expect(Array.isArray(value)).toBe(true);
   expect(value.length).toBe(3);
 });
@@ -65,9 +65,9 @@ test(`${testSuiteName}: Test Redis hash`, async () => {
 
   const value = await client.hgetallAsync(testKeyName);
 
-  expect(typeof (value)).toBe('object');
+  expect(typeof value).toBe('object');
   expect(Array.isArray(value)).toBe(false);
-  expect(typeof (value.age)).toBe('string');
+  expect(typeof value.age).toBe('string');
   expect(parseInt(value.age, 10)).toBe(42);
   expect(value).toEqual({
     name: 'John Doe',
@@ -79,7 +79,7 @@ test(`${testSuiteName}: Test Redis float`, async () => {
   await client.setAsync(testKeyName, 22.5);
 
   const value = await client.incrbyfloatAsync(testKeyName, 1);
-  expect(typeof (value)).toBe('string');
+  expect(typeof value).toBe('string');
   expect(value).toBe('23.5');
   expect(parseFloat(value)).toBeCloseTo(23.5);
 });
@@ -88,11 +88,11 @@ test(`${testSuiteName}: Test Redis integer`, async () => {
   await client.setAsync(testKeyName, 22);
 
   let value = await client.getAsync(testKeyName);
-  expect(typeof (value)).toBe('string');
+  expect(typeof value).toBe('string');
   expect(value).toBe('22');
 
   value = await client.incrbyAsync(testKeyName, 1);
-  expect(typeof (value)).toBe('number');
+  expect(typeof value).toBe('number');
   expect(value).toBe(23);
   expect(parseInt(value, 10)).toBe(23);
 });

@@ -59,10 +59,7 @@ test(`${testSuiteName}: example pipeline with bad command`, async () => {
   expect(responses[0]).toBe('OK');
   expect(responses[1]).toEqual({
     command: 'INCR',
-    args: [
-      testKey,
-      99,
-    ],
+    args: [testKey, 99],
     code: 'ERR',
     position: 1,
   });

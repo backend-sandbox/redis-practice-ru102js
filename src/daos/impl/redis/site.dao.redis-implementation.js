@@ -88,18 +88,35 @@ const findById = async (id) => {
   return siteHash === null ? siteHash : remap(siteHash);
 };
 
-/* eslint-disable arrow-body-style */
 /**
  * Get an array of all site objects.
  *
  * @returns {Promise} - a Promise, resolving to an array of site objects.
  */
 const findAll = async () => {
-  // START CHALLENGE #1
-  return [];
-  // END CHALLENGE #1
+  const client = redis.getClient();
+
+  const siteIds = keyGenerator.getSiteIDsKey();
+
+  const siteHashKeys = await client.smembersAsync(siteIds);
+
+  if (siteHashKeys.length === 0) {
+    return [];
+  }
+
+  const sites = [];
+  for (const siteHashKey of siteHashKeys) {
+    const siteHash = await client.hgetallAsync(siteHashKey);
+
+    logger.info(`siteHash for key ${siteHashKey}: ${JSON.stringify(siteHash)}`);
+
+    if (siteHash) {
+      sites.push(remap(siteHash));
+    }
+  }
+
+  return sites;
 };
-/* eslint-enable */
 
 /* eslint-disable no-unused-vars */
 

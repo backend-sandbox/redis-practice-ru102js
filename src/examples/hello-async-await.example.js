@@ -1,34 +1,32 @@
 const redis = require('redis');
 const bluebird = require('bluebird');
+const logger = require('../utils/logger.util');
 
-// Make all functions in 'redis' available as promisified
-// versions whose names end in 'Async'.
+/**
+ * Make all functions in 'redis' available as promisified
+ * versions whose names end in 'Async'.
+ */
 bluebird.promisifyAll(redis);
 
-// When using 'await', code needs to be in a function that
-// is declared 'async', so our code is wrapped in here and
-// called at the bottom of the script.
-const runApplication = async () => {
-  // Connect to Redis.
-  const client = redis.createClient({
-    host: 'localhost',
-    port: 6379,
-    // password: 'password',
-  });
+async function runApplication() {
+  try {
+    // * 1) Create a client and connect to Redis
+    const client = redis.createClient({
+      host: 'localhost',
+      port: 6379,
+      // password: 'password',
+    });
 
-  // Run a Redis command.
-  const reply = await client.setAsync('hello', 'world');
-  console.log(reply); // OK
+    const reply = await client.setAsync('hello', 'world');
+    logger.info(reply); // expected output: OK
 
-  const keyValue = await client.getAsync('hello');
-  console.log(keyValue); // world
+    const keyValue = await client.getAsync('hello');
+    logger.info(keyValue); // expected output: world
 
-  // Clean up and allow the script to exit.
-  client.quit();
-};
-
-try {
-  runApplication();
-} catch (e) {
-  console.log(e);
+    client.quit();
+  } catch (error) {
+    logger.info(error);
+  }
 }
+
+runApplication();

@@ -13,8 +13,6 @@ const testKeyPrefix = `test:${testSuiteName}`;
 keyGenerator.setPrefix(testKeyPrefix);
 const client = redis.getClient();
 
-/* eslint-disable no-undef */
-
 beforeAll(() => {
   jest.setTimeout(60000);
 });
@@ -28,7 +26,6 @@ afterEach(async () => {
 });
 
 afterAll(() => {
-  // Release Redis connection.
   client.quit();
 });
 
@@ -146,8 +143,7 @@ test(`${testSuiteName}: findById with missing site`, async () => {
   expect(site).toBe(null);
 });
 
-// This test is for Challenge #1.
-test.skip(`${testSuiteName}: findAll with multiple sites`, async () => {
+test(`${testSuiteName}: findAll with multiple sites`, async () => {
   const sites = [
     {
       id: 1,
@@ -190,21 +186,17 @@ test.skip(`${testSuiteName}: findAll with multiple sites`, async () => {
     },
   ];
 
-  /* eslint-disable no-await-in-loop */
-
   for (const site of sites) {
     await redisSiteDAO.insert(site);
   }
 
   const sitesFromRedis = await redisSiteDAO.findAll();
 
-  // Workaround due to ordering differences when using a set...
   expect(sitesFromRedis.length).toEqual(sites.length);
   expect(sitesFromRedis).toEqual(expect.arrayContaining(sites));
 });
 
-// This test is for Challenge #1.
-test.skip(`${testSuiteName}: findAll with empty sites`, async () => {
+test(`${testSuiteName}: findAll with empty sites`, async () => {
   const sites = await redisSiteDAO.findAll();
   expect(sites).toEqual([]);
 });

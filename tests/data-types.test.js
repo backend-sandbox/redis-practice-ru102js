@@ -1,12 +1,9 @@
 const config = require('better-config');
-
+const redis = require('../src/daos/impl/redis/redis-client');
 config.set('../config.json');
 
-const redis = require('../src/daos/impl/redis/redis_client');
-
 const client = redis.getClient();
-
-const testSuiteName = 'data_types';
+const testSuiteName = 'data-types';
 const testKeyName = `${testSuiteName}:test`;
 
 /* eslint-disable no-undef */

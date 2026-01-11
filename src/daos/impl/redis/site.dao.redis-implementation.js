@@ -35,6 +35,8 @@ const remap = (siteHash) => {
 };
 
 /**
+ // ! STORES BASIC SITE INFO ONLY
+ * 
  * Takes a site domain object and flattens its structure out into
  * a set of key/value pairs suitable for storage in a Redis hash.
  *
@@ -43,7 +45,7 @@ const remap = (siteHash) => {
  *  inner objects, suitable for storage in a Redis hash.
  * @private
  */
-const flatten = (site) => {
+function flatten(site) {
   const flattenedSite = { ...site };
 
   if (flattenedSite.hasOwnProperty('coordinate')) {
@@ -53,7 +55,7 @@ const flatten = (site) => {
   }
 
   return flattenedSite;
-};
+}
 
 /**
  * Insert a new site.
@@ -118,8 +120,6 @@ const findAll = async () => {
   return sites;
 };
 
-/* eslint-disable no-unused-vars */
-
 /**
  * Get an array of sites within a radius of a given coordinate.
  *
@@ -154,5 +154,3 @@ module.exports = {
   findByGeo,
   findByGeoWithExcessCapacity,
 };
-
-/* eslint-enable no-unused-vars */

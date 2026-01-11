@@ -39,6 +39,8 @@ const remap = (siteHash) => {
 };
 
 /**
+ // ! STORES SITE GEOLOCATION DATA
+ * 
  * Takes a site domain object and flattens its structure out into
  * a set of key/value pairs suitable for storage in a Redis hash.
  *
@@ -47,7 +49,7 @@ const remap = (siteHash) => {
  *  inner objects, suitable for storage in a Redis hash.
  * @private
  */
-const flatten = (site) => {
+function flatten(site) {
   const flattenedSite = { ...site };
 
   if (flattenedSite.hasOwnProperty('coordinate')) {
@@ -57,7 +59,7 @@ const flatten = (site) => {
   }
 
   return flattenedSite;
-};
+}
 
 /**
  * Insert a new site.
@@ -112,9 +114,7 @@ const findAll = async () => {
   for (const siteId of siteIds) {
     const siteKey = keyGenerator.getSiteHashKey(siteId);
 
-    /* eslint-disable no-await-in-loop */
     const siteHash = await client.hgetallAsync(siteKey);
-    /* eslint-enable */
 
     if (siteHash) {
       // Call remap to remap the flat key/value representation
@@ -143,10 +143,8 @@ const findByGeo = async (lat, lng, radius, radiusUnit) => {
   const sites = [];
 
   for (const siteId of siteIds) {
-    /* eslint-disable no-await-in-loop */
     const siteKey = keyGenerator.getSiteHashKey(siteId);
     const siteHash = await client.hgetallAsync(siteKey);
-    /* eslint-enable */
 
     if (siteHash) {
       sites.push(remap(siteHash));
@@ -167,73 +165,8 @@ const findByGeo = async (lat, lng, radius, radiusUnit) => {
  * @returns {Promise} - a Promise, resolving to an array of site objects.
  */
 const findByGeoWithExcessCapacity = async (lat, lng, radius, radiusUnit) => {
-  /* eslint-disable no-unreachable */
   // Challenge #5, remove the next line...
   return [];
-
-  const client = redis.getClient();
-
-  // Create a pipeline to send multiple commands in one round trip.
-  const setOperationsPipeline = client.batch();
-
-  // Get sites within the radius and store them in a temporary sorted set.
-  const sitesInRadiusSortedSetKey = keyGenerator.getTemporaryKey();
-
-  setOperationsPipeline.georadiusAsync(
-    keyGenerator.getSiteGeoKey(),
-    lng,
-    lat,
-    radius,
-    radiusUnit.toLowerCase(),
-    'STORE',
-    sitesInRadiusSortedSetKey,
-  );
-
-  // Create a key for a temporary sorted set containing sites that fell
-  // within the radius and their current capacities.
-  const sitesInRadiusCapacitySortedSetKey = keyGenerator.getTemporaryKey();
-
-  // START Challenge #5
-  // END Challenge #5
-
-  // Expire the temporary sorted sets after 30 seconds, so that we
-  // don't leave old keys on the server that we no longer need.
-  setOperationsPipeline.expire(sitesInRadiusSortedSetKey, 30);
-  setOperationsPipeline.expire(sitesInRadiusCapacitySortedSetKey, 30);
-
-  // Execute the set operations commands, we do not need to
-  // use the responses.
-  await setOperationsPipeline.execAsync();
-
-  // Get sites IDs with enough capacity from the temporary
-  // sorted set and store them in siteIds.
-  const siteIds = await client.zrangebyscoreAsync(sitesInRadiusCapacitySortedSetKey, capacityThreshold, '+inf');
-
-  // Populate array with site details, use pipeline for efficiency.
-  const siteHashPipeline = client.batch();
-
-  for (const siteId of siteIds) {
-    const siteKey = keyGenerator.getSiteHashKey(siteId);
-    siteHashPipeline.hgetall(siteKey);
-  }
-
-  const siteHashes = await siteHashPipeline.execAsync();
-
-  const sitesWithCapacity = [];
-
-  for (const siteHash of siteHashes) {
-    // Ensure a result was found before processing it.
-    if (siteHash) {
-      // Call remap to remap the flat key/value representation
-      // from the Redis hash into the site domain object format,
-      // and convert any fields that a numerical from the Redis
-      // string representations.
-      sitesWithCapacity.push(remap(siteHash));
-    }
-  }
-
-  return sitesWithCapacity;
-  /* eslint-enable */
 };
 
 module.exports = {

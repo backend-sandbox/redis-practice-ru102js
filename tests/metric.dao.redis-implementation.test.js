@@ -1,22 +1,17 @@
 const config = require('better-config');
-
+const redis = require('../src/daos/impl/redis/redis-client');
+const redisMetricDAO = require('../src/daos/impl/redis/metric.dao.redis-implementation');
+const keyGenerator = require('../src/daos/impl/redis/redis-key-generator');
+const timeUtils = require('../src/utils/time.util');
 config.set('../config.json');
 
-const redis = require('../src/daos/impl/redis/redis_client');
-const redisMetricDAO = require('../src/daos/impl/redis/metric_dao_redis_impl');
-const keyGenerator = require('../src/daos/impl/redis/redis_key_generator');
-const timeUtils = require('../src/utils/time_utils');
-
-const testSuiteName = 'metric_dao_redis_impl';
-
+const testSuiteName = 'metric.dao.redis-implementation.test';
 const testKeyPrefix = `test:${testSuiteName}`;
 
 keyGenerator.setPrefix(testKeyPrefix);
+
 const client = redis.getClient();
-
 const sampleReadings = [];
-
-/* eslint-disable no-undef */
 
 beforeAll(() => {
   jest.setTimeout(60000);
@@ -49,19 +44,14 @@ afterEach(async () => {
 });
 
 afterAll(() => {
-  // Release Redis connection.
   client.quit();
 });
 
 // Inserts then retrieves up to limit metrics.
 const testInsertAndRetrieve = async (limit) => {
-  // Insert all of the sample data.
-
-  /* eslint-disable no-await-in-loop */
   for (const reading of sampleReadings) {
     await redisMetricDAO.insert(reading);
   }
-  /* eslint-enable no-await-in-loop */
 
   // Retrieve up to 'limit' metrics back.
   const measurements = await redisMetricDAO.getRecent(1, 'whGenerated', timeUtils.getCurrentTimestamp(), limit);
@@ -77,13 +67,9 @@ const testInsertAndRetrieve = async (limit) => {
   }
 };
 
-// This test is for Challenge #2.
-test.skip(`${testSuiteName}: test 1 reading`, async () => testInsertAndRetrieve(1));
+// * These tests are for Challenge #2
+test(`${testSuiteName}: test 1 reading`, async () => testInsertAndRetrieve(1));
 
-// This test is for Challenge #2.
-test.skip(`${testSuiteName}: test 1 day of readings`, async () => testInsertAndRetrieve(60 * 24));
+test(`${testSuiteName}: test 1 day of readings`, async () => testInsertAndRetrieve(60 * 24));
 
-// This test is for Challenge #2.
-test.skip(`${testSuiteName}: test multiple days of readings`, async () => testInsertAndRetrieve(60 * 70));
-
-/* eslint-enable */
+test(`${testSuiteName}: test multiple days of readings`, async () => testInsertAndRetrieve(60 * 70));

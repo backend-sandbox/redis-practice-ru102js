@@ -6,14 +6,11 @@ const timeUtils = require('../../../utils/time.util');
 const metricIntervalSeconds = 60;
 const metricsPerDay = metricIntervalSeconds * 24;
 const maxMetricRetentionDays = 30;
-/* eslint-disable no-unused-vars */
-// Used in Challenge #2
+// * Used in Challenge #2
 const metricExpirationSeconds = 60 * 60 * 24 * maxMetricRetentionDays + 1;
-/* eslint-enable */
 const maxDaysToReturn = 7;
 const daySeconds = 24 * 60 * 60;
 
-/* eslint-disable no-unused-vars */
 /**
  * Transforms measurement and minute values into the format used for
  * storage in a Redis sorted set.  Will round measurement to 2 decimal
@@ -23,8 +20,9 @@ const daySeconds = 24 * 60 * 60;
  * @returns {string} - String containing <measurement>-<minuteOfDay>.
  * @private
  */
-const formatMeasurementMinute = (measurement, minuteOfDay) => `${roundTo(measurement, 2)}:${minuteOfDay}`;
-/* eslint-enable */
+function formatMeasurementMinute(measurement, minuteOfDay) {
+  return `${roundTo(measurement, 2)}:${minuteOfDay}`;
+}
 
 /**
  * Transforms a string containing : separated measurement value and
@@ -33,18 +31,18 @@ const formatMeasurementMinute = (measurement, minuteOfDay) => `${roundTo(measure
  * @returns {Object} - object containing measurement and minute values.
  * @private
  */
-const extractMeasurementMinute = (measurementMinute) => {
+function extractMeasurementMinute(measurementMinute) {
   const arr = measurementMinute.split(':');
   return {
     value: parseFloat(arr[0]),
     minute: parseInt(arr[1], 10),
   };
-};
+}
 
-/* eslint-disable no-unused-vars */
 /**
  * Insert a metric into the database for a given solar site ID.
  * This function uses a sorted set to store the metric.
+ * ===========================================================
  * @param {number} siteId - a solar site ID.
  * @param {number} metricValue - the value of the metric to store.
  * @param {string} metricName - the name of the metric to store.
@@ -52,16 +50,18 @@ const extractMeasurementMinute = (measurementMinute) => {
  * @returns {Promise} - Promise that resolves when the operation is complete.
  * @private
  */
-const insertMetric = async (siteId, metricValue, metricName, timestamp) => {
+async function insertMetric(siteId, metricValue, metricName, timestamp) {
   const client = redis.getClient();
 
   const metricKey = keyGenerator.getDayMetricKey(siteId, metricName, timestamp);
   const minuteOfDay = timeUtils.getMinuteOfDay(timestamp);
 
-  // START Challenge #2
-  // END Challenge #2
-};
-/* eslint-enable */
+  // * =======> START Challenge #2
+  const member = formatMeasurementMinute(metricValue, minuteOfDay); // e.g. "18.0:300"
+  await client.zaddAsync(metricKey, minuteOfDay, member); // * used minuteOfDay as score
+  await client.expireAsync(metricKey, metricExpirationSeconds); // * set expiration
+  // * =======> END Challenge #2
+}
 
 /**
  * Get a set of metrics for a specific solar site on a given day.
@@ -72,7 +72,7 @@ const insertMetric = async (siteId, metricValue, metricName, timestamp) => {
  * @returns {Promise} - Promise that resolves to an array of metric objects.
  * @private
  */
-const getMeasurementsForDate = async (siteId, metricUnit, timestamp, limit) => {
+async function getMeasurementsForDate(siteId, metricUnit, timestamp, limit) {
   const client = redis.getClient();
 
   // e.g. metrics:whGenerated:2020-01-01:1
@@ -99,22 +99,21 @@ const getMeasurementsForDate = async (siteId, metricUnit, timestamp, limit) => {
   }
 
   return formattedMeasurements;
-};
+}
 
 /**
  * Insert a new meter reading into the database.
  * @param {Object} meterReading - the meter reading to insert.
  * @returns {Promise} - Promise that resolves when the operation is completed.
  */
-const insert = async (meterReading) => {
+async function insert(meterReading) {
   await Promise.all([
     insertMetric(meterReading.siteId, meterReading.whGenerated, 'whGenerated', meterReading.dateTime),
     insertMetric(meterReading.siteId, meterReading.whUsed, 'whUsed', meterReading.dateTime),
     insertMetric(meterReading.siteId, meterReading.tempC, 'tempC', meterReading.dateTime),
   ]);
-};
+}
 
-/* eslint-disable no-unused-vars */
 /**
  * Get recent metrics for a specific solar site on a given date with
  * an optional limit.  This implementation uses a Redis Sorted Set.
@@ -124,7 +123,7 @@ const insert = async (meterReading) => {
  * @param {number} limit - maximum number of metrics to be returned.
  * @returns {Promise} - Promise resolving to an array of measurement objects.
  */
-const getRecent = async (siteId, metricUnit, timestamp, limit) => {
+async function getRecent(siteId, metricUnit, timestamp, limit) {
   if (limit > metricsPerDay * maxMetricRetentionDays) {
     const err = new Error(`Cannot request more than ${maxMetricRetentionDays} days of minute level data.`);
     err.name = 'TooManyMetricsError';
@@ -138,9 +137,7 @@ const getRecent = async (siteId, metricUnit, timestamp, limit) => {
   const measurements = [];
 
   do {
-    /* eslint-disable no-await-in-loop */
     const dateMeasurements = await getMeasurementsForDate(siteId, metricUnit, currentTimestamp, count);
-    /* eslint-enable */
 
     measurements.unshift(...dateMeasurements);
     count -= dateMeasurements.length;
@@ -149,8 +146,7 @@ const getRecent = async (siteId, metricUnit, timestamp, limit) => {
   } while (count > 0 && iterations < maxDaysToReturn);
 
   return measurements;
-};
-/* eslint-enable */
+}
 
 module.exports = {
   insert,

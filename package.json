@@ -7,9 +7,10 @@
     "test": "test"
   },
   "private": true,
+  "type": "commonjs",
   "scripts": {
     "format": "prettier --write \"src/**/*.js\" \"tests/**/*.js\" \"*.json\"",
-    "load": "node src/utils/data_loader.js --",
+    "load": "node src/utils/data-loader.util.js --",
     "lint": "./node_modules/eslint/bin/eslint.js src tests",
     "start": "node ./src/app.js",
     "start:dev": "./node_modules/nodemon/bin/nodemon.js",

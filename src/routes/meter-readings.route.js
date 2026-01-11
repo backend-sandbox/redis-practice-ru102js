@@ -19,10 +19,10 @@ const getLimit = (n) => {
   return n > 1000 ? 1000 : n;
 };
 
-// POST /meterreadings
+// POST /meter-readings
 // Body is array of objects as described below.
 router.post(
-  '/meterreadings',
+  '/meter-readings',
   [
     body().isArray(),
     body('*.siteId').isInt(),
@@ -42,9 +42,9 @@ router.post(
   },
 );
 
-// GET /meterreadings?n=99
+// GET /meter-readings?n=99
 router.get(
-  '/meterreadings',
+  '/meter-readings',
   [query('n').optional().isInt({ min: 1 }).toInt(), apiErrorReporter],
   async (req, res, next) => {
     try {
@@ -56,9 +56,9 @@ router.get(
   },
 );
 
-// GET /meterreadings/123?n=99
+// GET /meter-readings/123?n=99
 router.get(
-  '/meterreadings/:siteId',
+  '/meter-readings/:siteId',
   [param('siteId').isInt().toInt(), query('n').optional().isInt({ min: 1 }).toInt(), apiErrorReporter],
   async (req, res, next) => {
     try {

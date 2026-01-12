@@ -2,7 +2,7 @@ const config = require('better-config');
 
 config.set('../config.json');
 
-const redis = require('../src/daos/impl/redis/redis_client');
+const redis = require('../src/daos/impl/redis/redis-client');
 const redisSiteStatsDAO = require('../src/daos/impl/redis/site-stats.dao.redis-implementation');
 const keyGenerator = require('../src/daos/impl/redis/redis-key-generator');
 
@@ -159,5 +159,3 @@ test(`${testSuiteName}: findById`, async () => {
   expect(ttl).toBeGreaterThan(0);
   expect(ttl).toBeLessThanOrEqual(60 * 60 * 24 * 7); // One week in seconds.
 });
-
-/* eslint-enable */

@@ -41,7 +41,6 @@ const findById = async (siteId, timestamp) => {
   return response ? remap(response) : response;
 };
 
-/* eslint-disable no-unused-vars */
 /**
  * Updates the site stats for a specific site with the meter
  * reading data provided.
@@ -56,12 +55,25 @@ const updateOptimized = async (meterReading) => {
   // Load script if needed, uses cached SHA if already loaded.
   await compareAndUpdateScript.load();
 
-  // START Challenge #3
-  // END Challenge #3
-};
-/* eslint-enable */
+  // * ===========> START Challenge #3
+  const readingCapacity = meterReading.whGenerated - meterReading.whUsed;
 
-/* eslint-disable no-unused-vars */
+  const transaction = client.multi(); // * create redis transaction
+
+  // set simple fields using transaction
+  transaction.hset(key, 'lastReportingTime', timeUtils.getCurrentTimestamp());
+  transaction.hincrby(key, 'meterReadingCount', 1);
+  transaction.expire(key, weekSeconds);
+
+  // use Lua script for compare-and-update operations
+  transaction.evalsha(...compareAndUpdateScript.updateIfGreater(key, 'maxWhGenerated', meterReading.whGenerated));
+  transaction.evalsha(...compareAndUpdateScript.updateIfLess(key, 'minWhGenerated', meterReading.whGenerated));
+  transaction.evalsha(...compareAndUpdateScript.updateIfGreater(key, 'maxCapacity', readingCapacity));
+
+  await transaction.execAsync();
+  // * ===========> END Challenge #3
+};
+
 /**
  * Updates the site stats for a specific site with the meter
  * reading data provided.
@@ -93,9 +105,8 @@ const updateBasic = async (meterReading) => {
     await client.hsetAsync(key, 'maxCapacity', readingCapacity);
   }
 };
-/* eslint-enable */
 
 module.exports = {
   findById,
-  update: updateBasic, // updateOptimized
+  update: updateOptimized,
 };

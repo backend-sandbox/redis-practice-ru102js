@@ -109,13 +109,22 @@ const findAll = async () => {
   const client = redis.getClient();
 
   const siteIds = await client.zrangeAsync(keyGenerator.getSiteGeoKey(), 0, -1);
-  const sites = [];
 
+  // Create a pipeline to batch all HGETALL commands
+  const pipeline = client.batch();
+
+  // Queue all HGETALL commands in the pipeline
   for (const siteId of siteIds) {
     const siteKey = keyGenerator.getSiteHashKey(siteId);
+    pipeline.hgetall(siteKey);
+  }
 
-    const siteHash = await client.hgetallAsync(siteKey);
+  // Execute all commands in a single round trip to Redis
+  const results = await pipeline.execAsync();
 
+  // Process the results from the pipeline
+  const sites = [];
+  for (const siteHash of results) {
     if (siteHash) {
       // Call remap to remap the flat key/value representation
       // from the Redis hash into the site domain object format.
@@ -165,8 +174,62 @@ const findByGeo = async (lat, lng, radius, radiusUnit) => {
  * @returns {Promise} - a Promise, resolving to an array of site objects.
  */
 const findByGeoWithExcessCapacity = async (lat, lng, radius, radiusUnit) => {
-  // Challenge #5, remove the next line...
-  return [];
+  const client = redis.getClient();
+
+  // Create temporary keys for set operations
+  const sitesInRadiusSortedSetKey = keyGenerator.getTemporaryKey();
+  const sitesInRadiusCapacitySortedSetKey = keyGenerator.getTemporaryKey();
+
+  // Create a pipeline to batch the GEORADIUS and set operations
+  const setOperationsPipeline = client.batch();
+
+  // Store sites within radius in a temporary sorted set
+  setOperationsPipeline.georadius(
+    keyGenerator.getSiteGeoKey(),
+    lng,
+    lat,
+    radius,
+    radiusUnit.toLowerCase(),
+    'STORE',
+    sitesInRadiusSortedSetKey,
+  );
+
+  // * ========> START Challenge #5
+  // Perform ZINTERSTORE to intersect the sites in radius with the capacity ranking
+  // Use WEIGHTS to keep scores from the capacity ranking sorted set
+  setOperationsPipeline.zinterstore(
+    sitesInRadiusCapacitySortedSetKey,
+    2,
+    sitesInRadiusSortedSetKey,
+    keyGenerator.getCapacityRankingKey(),
+    'WEIGHTS',
+    0,
+    1,
+  );
+  // * ========> END Challenge #5
+
+  // Set expiration on temporary keys
+  setOperationsPipeline.expire(sitesInRadiusSortedSetKey, 30);
+  setOperationsPipeline.expire(sitesInRadiusCapacitySortedSetKey, 30);
+
+  // Execute the pipeline
+  await setOperationsPipeline.execAsync();
+
+  // Get site IDs with excess capacity (score >= capacityThreshold)
+  const siteIds = await client.zrangebyscoreAsync(sitesInRadiusCapacitySortedSetKey, capacityThreshold, '+inf');
+
+  // Retrieve site details for each site ID
+  const sites = [];
+  for (const siteId of siteIds) {
+    const siteKey = keyGenerator.getSiteHashKey(siteId);
+    const siteHash = await client.hgetallAsync(siteKey);
+
+    if (siteHash) {
+      sites.push(remap(siteHash));
+    }
+  }
+
+  return sites;
 };
 
 module.exports = {

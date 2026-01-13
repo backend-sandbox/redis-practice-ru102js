@@ -7,14 +7,12 @@ const redisSiteDAO = require('../src/daos/impl/redis/site-geo.dao.redis-implemen
 const redisCapacityDAO = require('../src/daos/impl/redis/capacity.dao.redis-implementation');
 const keyGenerator = require('../src/daos/impl/redis/redis-key-generator');
 
-const testSuiteName = 'site_geo_dao_redis_impl';
+const testSuiteName = 'site-geo.dao.redis-implementation';
 
 const testKeyPrefix = `test:${testSuiteName}`;
 
 keyGenerator.setPrefix(testKeyPrefix);
 const client = redis.getClient();
-
-/* eslint-disable no-undef */
 
 beforeAll(() => {
   jest.setTimeout(60000);
@@ -156,8 +154,6 @@ test(`${testSuiteName}: findAll with multiple sites`, async () => {
     },
   ];
 
-  /* eslint-disable no-await-in-loop */
-
   for (const site of sites) {
     await redisSiteDAO.insert(site);
   }
@@ -271,8 +267,8 @@ test(`${testSuiteName}: findByGeo no results`, async () => {
   expect(response.length).toBe(0);
 });
 
-// This test is for Challenge #5.
-test.skip(`${testSuiteName}: findByGeoWithExcessCapacity`, async () => {
+// * This test is for Challenge #5.
+test(`${testSuiteName}: findByGeoWithExcessCapacity`, async () => {
   const site1 = {
     id: 1,
     capacity: 4.5,
@@ -362,5 +358,3 @@ test.skip(`${testSuiteName}: findByGeoWithExcessCapacity`, async () => {
 
   expect(response.length).toBe(0);
 });
-
-/* eslint-enable */

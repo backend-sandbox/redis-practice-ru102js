@@ -145,7 +145,9 @@ const findByGeo = async (lat, lng, radius, radiusUnit) => [];
  * @param {'KM' | 'MI'} radiusUnit - The unit that the value of radius is in.
  * @returns {Promise} - a Promise, resolving to an array of site objects.
  */
-const findByGeoWithExcessCapacity = async (lat, lng, radius, radiusUnit) => [];
+async function findByGeoWithExcessCapacity(lat, lng, radius, radiusUnit) {
+  return [];
+}
 
 module.exports = {
   insert,

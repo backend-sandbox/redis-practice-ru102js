@@ -13,8 +13,6 @@ const testKeyPrefix = `test:${testSuiteName}`;
 keyGenerator.setPrefix(testKeyPrefix);
 const client = redis.getClient();
 
-/* eslint-disable no-undef */
-
 beforeAll(() => {
   jest.setTimeout(60000);
 });
@@ -106,8 +104,8 @@ test(`${testSuiteName}: getReport`, async () => {
   });
 });
 
-// This test is for Challenge #4.
-test.skip(`${testSuiteName}: getRank`, async () => {
+// * This test is for Challenge #4.
+test(`${testSuiteName}: getRank`, async () => {
   // Create some data
   const entries = [
     {
@@ -153,5 +151,3 @@ test.skip(`${testSuiteName}: getRank`, async () => {
   result = await redisCapacityDAO.getRank(6);
   expect(result).toBe(null);
 });
-
-/* eslint-enable */

@@ -1,7 +1,7 @@
 const daoLoader = require('./loader.dao');
 
-// Week 3, change this from 'site' to 'site_geo'.
-const impl = daoLoader.loadDao('site');
+// * Week 3, change this from 'site' to 'site-geo'.
+const implementation = daoLoader.loadDao('site-geo');
 
 module.exports = {
   /**
@@ -11,7 +11,7 @@ module.exports = {
    * @returns {Promise} - a Promise, resolving to the string value
    *   for the ID of the site in the database.
    */
-  insert: async (site) => impl.insert(site),
+  insert: async (site) => implementation.insert(site),
 
   /**
    * Get the site object for a given site ID.
@@ -19,14 +19,14 @@ module.exports = {
    * @param {number} id - a site ID.
    * @returns {Promise} - a Promise, resolving to a site object.
    */
-  findById: async (id) => impl.findById(id),
+  findById: async (id) => implementation.findById(id),
 
   /**
    * Get an array of all site objects.
    *
    * @returns {Promise} - a Promise, resolving to an array of site objects.
    */
-  findAll: async () => impl.findAll(),
+  findAll: async () => implementation.findAll(),
 
   /**
    * Get an array of sites within a radius of a given coordinate.
@@ -39,7 +39,7 @@ module.exports = {
    * @param {'KM' | 'MI'} radiusUnit - The unit that the value of radius is in.
    * @returns {Promise} - a Promise, resolving to an array of site objects.
    */
-  findByGeo: async (lat, lng, radius, radiusUnit) => impl.findByGeo(lat, lng, radius, radiusUnit),
+  findByGeo: async (lat, lng, radius, radiusUnit) => implementation.findByGeo(lat, lng, radius, radiusUnit),
 
   /**
    * Get an array of sites where capacity exceeds consumption within
@@ -54,5 +54,5 @@ module.exports = {
    * @returns {Promise} - a Promise, resolving to an array of site objects.
    */
   findByGeoWithExcessCapacity: async (lat, lng, radius, radiusUnit) =>
-    impl.findByGeoWithExcessCapacity(lat, lng, radius, radiusUnit),
+    implementation.findByGeoWithExcessCapacity(lat, lng, radius, radiusUnit),
 };

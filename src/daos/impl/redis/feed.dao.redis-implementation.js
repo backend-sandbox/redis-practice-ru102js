@@ -1,10 +1,8 @@
 const redis = require('./redis-client');
 const keyGenerator = require('./redis-key-generator');
 
-/* eslint-disable no-unused-vars */
 const globalMaxFeedLength = 10000;
 const siteMaxFeedLength = 2440;
-/* eslint-enable */
 
 /**
  * Takes an object and returns an array whose elements are alternating
@@ -117,15 +115,18 @@ const unpackStreamEntries = (streamResponse) => {
 const insert = async (meterReading) => {
   // Unpack meterReading into array of alternating key
   // names and values for addition to the stream.
-  /* eslint-disable no-unused-vars */
   const fields = objectToArray(meterReading);
-  /* eslint-enable */
 
   const client = redis.getClient();
   const pipeline = client.batch();
 
-  // START Challenge #6
-  // END Challenge #6
+  // * ========> START Challenge #6
+  // Add to global feed stream with MAXLEN trimming
+  pipeline.xadd(keyGenerator.getGlobalFeedKey(), 'MAXLEN', '~', globalMaxFeedLength, '*', ...fields);
+
+  // Add to site-specific feed stream with MAXLEN trimming
+  pipeline.xadd(keyGenerator.getFeedKey(meterReading.siteId), 'MAXLEN', '~', siteMaxFeedLength, '*', ...fields);
+  // * ========> END Challenge #6
 
   await pipeline.execAsync();
 };
